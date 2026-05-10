@@ -1,7 +1,10 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import { createClient } from '@/lib/supabase/server'
 
-export default function HomePage() {
+export default async function HomePage() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
   return (
     <main className="flex flex-col">
 
@@ -39,10 +42,10 @@ export default function HomePage() {
               セラピストを探す
             </Link>
             <Link
-              href="/login"
+              href={user ? '/employees' : '/login'}
               className="px-8 py-3 border border-white bg-black/20 text-white rounded-xl font-medium hover:bg-white/10 transition"
             >
-              無料で登録する
+              {user ? 'セラピスト一覧へ' : '無料で登録する'}
             </Link>
           </div>
         </div>
