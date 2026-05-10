@@ -35,10 +35,14 @@ export default function UnreadBadge({ initialCount, userId, role }: Props) {
     return () => { supabase.removeChannel(channel) }
   }, [userId])
 
-  // チャットを開いたらバッジをリセット
+  // チャットを開いたら実際の残未読数をAPIで取得してバッジを更新
   useEffect(() => {
-    function handleRead() {
-      setCount(0)
+    async function handleRead() {
+      const res = await fetch('/api/threads/unread-count')
+      if (res.ok) {
+        const { count } = await res.json()
+        setCount(count)
+      }
     }
     window.addEventListener('chat-read', handleRead)
     return () => window.removeEventListener('chat-read', handleRead)
