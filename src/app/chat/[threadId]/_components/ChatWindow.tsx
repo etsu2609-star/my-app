@@ -30,22 +30,13 @@ export default function ChatWindow({
   const bottomRef = useRef<HTMLDivElement>(null)
   const supabase = createClient()
 
-// チャットを開いたら既読にする
-useEffect(() => {
-  fetch('/api/threads/read', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ threadId }),
-  })
-}, [threadId])
-
+// チャットを開いたら既読にしてバッジ更新イベントを発火
 useEffect(() => {
   fetch('/api/threads/read', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ threadId }),
   }).then(() => {
-    // バッジをリセットするイベントを発火
     window.dispatchEvent(new CustomEvent('chat-read'))
   })
 }, [threadId])
