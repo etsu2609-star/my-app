@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { getUnreadCount } from '@/lib/unread'
 
 export async function POST(request: Request) {
   const { threadId } = await request.json()
@@ -14,7 +15,8 @@ export async function POST(request: Request) {
     .eq('id', user.id)
     .single()
 
-  const column = profile?.role === 'employee'
+  const role = profile?.role ?? 'user'
+  const column = role === 'employee'
     ? 'employee_last_read_at'
     : 'user_last_read_at'
 
@@ -23,5 +25,7 @@ export async function POST(request: Request) {
     .update({ [column]: new Date().toISOString() })
     .eq('id', threadId)
 
-  return NextResponse.json({ ok: true })
+  // 更新後の残未読数を同一リクエスト内で取得して返す（競合を防ぐ）
+  const unreadCount = await getUnreadCount(user.id, role)
+  return NextResponse.json({ ok: true, unreadCount })
 }
