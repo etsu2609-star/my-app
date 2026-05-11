@@ -30,15 +30,17 @@ export default function ChatWindow({
   const bottomRef = useRef<HTMLDivElement>(null)
   const supabase = createClient()
 
-// チャットを開いたら既読にしてバッジ更新イベントを発火
+// チャットを開いたら既読にし、更新後の未読数をバッジへ通知
 useEffect(() => {
   fetch('/api/threads/read', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ threadId }),
-  }).then(() => {
-    window.dispatchEvent(new CustomEvent('chat-read'))
   })
+    .then((res) => res.json())
+    .then(({ unreadCount }) => {
+      window.dispatchEvent(new CustomEvent('chat-read', { detail: { unreadCount } }))
+    })
 }, [threadId])
 
   // Realtimeで新着メッセージを購読
