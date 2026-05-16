@@ -30,12 +30,6 @@ export default function ChatWindow({
   const bottomRef = useRef<HTMLDivElement>(null)
   const supabase = createClient()
 
-// チャット表示中はページ本体のスクロールを無効化
-useEffect(() => {
-  document.body.style.overflow = 'hidden'
-  return () => { document.body.style.overflow = '' }
-}, [])
-
 // チャットを開いたら既読にし、更新後の未読数をバッジへ通知
 useEffect(() => {
   fetch('/api/threads/read', {
