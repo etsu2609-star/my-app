@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
 type Props = {
@@ -11,8 +11,9 @@ type Props = {
 export default function UnreadBadge({ initialCount, userId, role }: Props) {
   const [count, setCount] = useState(initialCount)
   const supabase = createClient()
+  const viewingThreadId = useRef<string | null>(null)
 
-  // Realtimeで新着メッセージを購読
+  // Realtimeで新着メッセージを購読（現在表示中のスレッドは除外）
   useEffect(() => {
     const channel = supabase
       .channel('unread-messages')
@@ -24,8 +25,8 @@ export default function UnreadBadge({ initialCount, userId, role }: Props) {
           table: 'messages',
         },
         (payload) => {
-          const msg = payload.new as { sender_id: string }
-          if (msg.sender_id !== userId) {
+          const msg = payload.new as { sender_id: string; thread_id: string }
+          if (msg.sender_id !== userId && msg.thread_id !== viewingThreadId.current) {
             setCount((prev) => prev + 1)
           }
         }
@@ -38,11 +39,15 @@ export default function UnreadBadge({ initialCount, userId, role }: Props) {
   // chat-read イベントで既読後の残未読数を受け取ってバッジを更新
   useEffect(() => {
     function handleRead(e: Event) {
-      const { unreadCount } = (e as CustomEvent<{ unreadCount: number }>).detail
+      const { unreadCount, threadId } = (e as CustomEvent<{ unreadCount: number; threadId: string }>).detail
+      viewingThreadId.current = threadId
       setCount(unreadCount)
     }
     window.addEventListener('chat-read', handleRead)
-    return () => window.removeEventListener('chat-read', handleRead)
+    return () => {
+      window.removeEventListener('chat-read', handleRead)
+      viewingThreadId.current = null
+    }
   }, [])
 
   if (count === 0) return null
