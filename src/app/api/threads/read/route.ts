@@ -20,12 +20,15 @@ export async function POST(request: Request) {
     ? 'employee_last_read_at'
     : 'user_last_read_at'
 
-  const { error: updateError } = await supabase
+  const { data: updated, error: updateError } = await supabase
     .from('threads')
     .update({ [column]: new Date().toISOString() })
     .eq('id', threadId)
+    .select('id')
 
-  if (updateError) {
+  // RLSでブロックされた場合もerrorはnullで0行更新になるため件数も確認する
+  if (updateError || !updated?.length) {
+    console.error('[read] update failed:', updateError ?? '0 rows (RLS?)', { threadId, column })
     return NextResponse.json({ error: 'Failed to mark as read' }, { status: 500 })
   }
 
