@@ -66,7 +66,7 @@ export default async function EmployeesPage({ searchParams }: Props) {
       .from('profiles')
       .select('*')
       .eq('role', 'employee')
-      .eq('is_public', true)
+      .eq('is_subscribed', true)
       .order('display_name')
 
     if (q) {
