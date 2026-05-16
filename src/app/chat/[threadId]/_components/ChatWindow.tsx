@@ -63,6 +63,17 @@ useEffect(() => {
       },
       (payload) => {
         const newMsg = payload.new as Message
+        if (newMsg.sender_id !== currentUserId) {
+          fetch('/api/threads/read', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ threadId }),
+          })
+            .then((res) => res.json())
+            .then(({ unreadCount }) => {
+              window.dispatchEvent(new CustomEvent('chat-read', { detail: { unreadCount } }))
+            })
+        }
         setMessages((prev) => {
           // 本物のIDで重複チェック
           if (prev.some((m) => m.id === newMsg.id)) return prev
