@@ -30,7 +30,7 @@ export default function PublicToggle({ profileId, initialIsPublic }: Props) {
       <div>
         <p className="text-sm font-medium">プロフィールを公開する</p>
         <p className="text-xs text-gray-400 mt-0.5">
-          オフにすると一覧ページに表示されなくなります
+          オフにすると一覧ページへの掲載を一時停止できます
         </p>
       </div>
       <button

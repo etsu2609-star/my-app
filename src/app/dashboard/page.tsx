@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import ProfileForm from './_components/ProfileForm'
 import SubscriptionCard from './_components/SubscriptionCard'
+import PublicToggle from './_components/PublicToggle'
 import MenuEditor from './_components/MenuEditor'
 import TagEditor from './_components/TagEditor'
 
@@ -45,6 +46,9 @@ export default async function DashboardPage() {
         <p className="text-gray-500 text-sm">公開ページに表示される情報を編集できます</p>
       </div>
       <SubscriptionCard profileId={profile!.id} initialIsSubscribed={profile!.is_subscribed} />
+      {profile!.is_subscribed && (
+        <PublicToggle profileId={profile!.id} initialIsPublic={profile!.is_public} />
+      )}
       <ProfileForm profile={profile!} email={email ?? ''} />
       <hr />
       <TagEditor
