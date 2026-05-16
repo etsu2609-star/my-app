@@ -37,10 +37,16 @@ useEffect(() => {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ threadId }),
   })
-    .then((res) => res.json())
-    .then(({ unreadCount }) => {
-      window.dispatchEvent(new CustomEvent('chat-read', { detail: { unreadCount } }))
+    .then((res) => {
+      if (!res.ok) throw new Error(`read API ${res.status}`)
+      return res.json()
     })
+    .then(({ unreadCount }: { unreadCount: number }) => {
+      window.dispatchEvent(
+        new CustomEvent('chat-read', { detail: { unreadCount, threadId } })
+      )
+    })
+    .catch(console.error)
 }, [threadId])
 
   // Realtimeで新着メッセージを購読
