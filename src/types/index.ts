@@ -6,6 +6,7 @@ export type Profile = {
   avatar_url: string
   job_title: string
   is_public: boolean
+  is_subscribed: boolean
   region: string
   age: number | null
   phone: string
